@@ -1,0 +1,12 @@
+# ! DO NOT CHANGE THIS FILE.
+# ! This configuration file is managed by Ansible.
+
+[mysqld]
+innodb_buffer_pool_size = {{ wordpress_mysql_buffer_pool_size }}
+innodb_log_file_size = {{ wordpress_mysql_log_file_size }}
+innodb_io_capacity = {{ wordpress_mysql_io_capacity }}
+innodb_io_capacity_max = {{ wordpress_mysql_io_capacity_max }}
+thread_cache_size = {{ wordpress_mysql_thread_cache_size }}
+innodb_flush_log_at_trx_commit = {{ wordpress_mysql_flush_log_at_trx_commit }}
+innodb_doublewrite = {{ wordpress_mysql_doublewrite }}
+max_connections = {{ wordpress_mysql_max_connections }}

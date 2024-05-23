@@ -1,0 +1,10 @@
+Timeout 600
+ProxyTimeout 600
+
+Alias /wordpress "/var/www/wordpress/"
+DirectoryIndex index.php index.html index.htm
+<Directory "/var/www/wordpress">
+    Options FollowSymLinks
+    AllowOverride All
+    Require all granted
+</Directory>

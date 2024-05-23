@@ -1,2 +1,8 @@
 ---
 # vars file for wordpress
+wordpress_support_rhel:
+  - RedHat
+  - AlmaLinux
+  - CentOS
+
+wordpress_mysql_socket: /var/lib/mysql/mysql.sock

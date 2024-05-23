@@ -1,0 +1,65 @@
+---
+# tasks file for httpd
+- name: Install the latest version of httpd.
+  ansible.builtin.dnf:
+    name: "{{ item }}"
+    state: latest
+  loop:
+    - httpd
+    - php
+
+- name: Install the latest version of php lib.
+  ansible.builtin.dnf:
+    name: "{{ item }}"
+    state: latest
+  loop:
+    - php-pear
+    - php-mbstring
+    - php-pdo
+    - php-gd
+    - php-mysqlnd
+    - php-enchant
+    - enchant
+    - hunspell
+
+- name: Configure php-fpm
+  ansible.builtin.template:
+    src: php_www.conf.j2
+    dest: /etc/php-fpm.d/www.conf
+    owner: root
+    group: root
+    mode: '0644'
+    backup: yes
+  register: php_fpm_conf
+
+- name: Restart php-fpm
+  ansible.builtin.systemd:
+    name: php-fpm
+    state: restarted
+  when: php_fpm_conf.changed
+
+- name: Configure httpd wordpress.
+  ansible.builtin.template:
+    src: httpd_wordpress.conf.j2
+    dest: /etc/httpd/conf.d/wordpress.conf
+    owner: root
+    group: root
+    mode: '0644'
+    backup: yes
+  register: httpd_conf
+
+- name: Restart httpd
+  ansible.builtin.systemd:
+    name: httpd 
+    state: restarted
+  when: httpd_conf.changed
+
+- name: Start and enable httpd and php-fpm
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    state: started
+    enabled: yes
+  loop:
+    - httpd
+    - php-fpm
+

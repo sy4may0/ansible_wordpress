@@ -1,0 +1,75 @@
+---
+# tasks file for mariadb
+- name: Install the latest version of MariaDB.
+  ansible.builtin.dnf:
+    name: "{{ item }}"
+    state: latest
+  loop:
+    - mariadb-server
+    - python3-PyMySQL
+
+- name: Template mysql configuration files.
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: root
+    group: root
+    mode: '0644'
+  loop:
+    - src: mysql_tuning.cnf.j2
+      dest: /etc/my.cnf.d/tuning.cnf
+  register: mariadb_conf
+
+- name: Restart mariadb
+  ansible.builtin.systemd:
+    name: mariadb
+    state: restarted
+  when: mariadb_conf.changed
+
+- name: Enable service mariadb and make sure a mariadb is running.
+  ansible.builtin.systemd:
+    name: mariadb
+    state: started
+    enabled: yes
+
+- name: Check if a root password is unset.
+  shell: >
+    mysql -uroot
+    -p'{{ wordpress_db_root_password }}'
+    -e quit
+  changed_when: no
+  ignore_errors: true
+  register: wordpress_db_root_pwd_check
+
+- name: Change mariadb root password.
+  community.mysql.mysql_user:
+    name: root
+    password: "{{ wordpress_db_root_password }}"
+    login_unix_socket: "{{ wordpress_mysql_socket }}"
+    login_user: root
+    login_password: ""
+  when: wordpress_db_root_pwd_check.rc != 0
+
+- name: Create wordpress database.
+  block:
+    - name: Create wordpress database
+      community.mysql.mysql_db:
+        login_unix_socket: "{{ wordpress_mysql_socket }}"
+        login_user: root
+        login_password: ''
+        name: wordpress
+        state: present
+        encoding: utf8
+        collation: utf8_general_ci
+    
+    - name: Create user and permission
+      community.mysql.mysql_user:
+        login_unix_socket: "{{ wordpress_mysql_socket }}"
+        login_user: root
+        login_password: ''
+        name: wordpress
+        password: "{{ wordpress_db_password }}"
+        priv: 'wordpress.*:ALL'
+        state: present
+        append_privs: yes
+ 
