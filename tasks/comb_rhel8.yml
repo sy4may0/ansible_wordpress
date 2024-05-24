@@ -1,1 +1,25 @@
 ---
+- name: Import mariadb tasks.
+  ansible.builtin.import_tasks:
+    file: sub_mariadb.yml
+  tags:
+    - wordpress
+    - wordpress_mariadb
+    - configuration
+
+- name: Import httpd tasks.
+  ansible.builtin.import_tasks:
+    file: sub_httpd.yml
+  tags:
+    - wordpress
+    - wordpress_httpd
+    - configuration
+
+- name: Import wordpress tasks.
+  ansible.builtin.import_tasks:
+    file: sub_wordpress.yml
+  tags:
+    - wordpress
+    - wordpress_wordpress
+    - configuration
+
