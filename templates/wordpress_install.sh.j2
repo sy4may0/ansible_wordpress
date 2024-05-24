@@ -1,0 +1,15 @@
+#!/bin/bash
+DBNAME=wordpress
+DBUSER=wordpress
+DBPASS={{ wordpress_db_password }}
+DBHOST=localhost
+LOCALE=ja
+
+URL={{ wordpress_url }}
+TITLE={{ wordpress_blog_title }}
+ADMIN_USER={{ wordpress_admin_user }}
+ADMIN_PASS={{ wordpress_admin_pass }}
+ADMIN_EMAIL={{ wordpress_admin_email }}
+
+sudo -u apache /tmp/wp-cli config create --path=/var/www/wordpress --dbname=$DBNAME --dbuser=$DBUSER --dbpass=$DBPASS --dbhost=$DBHOST --locale=$LOCALE
+sudo -u apache /tmp/wp-cli core install --path=/var/www/wordpress --url="$URL" --title="$TITLE" --admin_user="$ADMIN_USER" --admin_password="$ADMIN_PASS" --admin_email="$ADMIN_EMAIL"

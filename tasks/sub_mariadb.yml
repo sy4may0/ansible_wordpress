@@ -50,26 +50,3 @@
     login_password: ""
   when: wordpress_db_root_pwd_check.rc != 0
 
-- name: Create wordpress database.
-  block:
-    - name: Create wordpress database
-      community.mysql.mysql_db:
-        login_unix_socket: "{{ wordpress_mysql_socket }}"
-        login_user: root
-        login_password: ''
-        name: wordpress
-        state: present
-        encoding: utf8
-        collation: utf8_general_ci
-    
-    - name: Create user and permission
-      community.mysql.mysql_user:
-        login_unix_socket: "{{ wordpress_mysql_socket }}"
-        login_user: root
-        login_password: ''
-        name: wordpress
-        password: "{{ wordpress_db_password }}"
-        priv: 'wordpress.*:ALL'
-        state: present
-        append_privs: yes
- 

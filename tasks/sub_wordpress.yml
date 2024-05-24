@@ -1,0 +1,101 @@
+- name: Download wordpress latest.tar.gz
+  ansible.builtin.unarchive:
+    src: "{{ wordpress_targz_url }}"
+    dest: /var/www/
+    remote_src: yes
+
+- name: Change owner wordpress cgi.
+  ansible.builtin.file:
+    path: /var/www/wordpress
+    state: directory
+    owner: apache
+    group: apache
+    recurse: yes
+
+- name: Check wordpress installed.
+  ansible.builtin.stat:
+    path: /var/www/wordpress/wp-config.php
+  register: wordpress_installed
+
+- name: Install wordpress
+  block:
+    - name: Create wordpress database
+      community.mysql.mysql_db:
+        login_unix_socket: "{{ wordpress_mysql_socket }}"
+        login_user: root
+        login_password: ''
+        name: wordpress
+        state: present
+        encoding: utf8
+        collation: utf8_general_ci
+    
+    - name: Create user and permission
+      community.mysql.mysql_user:
+        login_unix_socket: "{{ wordpress_mysql_socket }}"
+        login_user: root
+        login_password: ''
+        name: wordpress
+        password: "{{ wordpress_db_password }}"
+        priv: 'wordpress.*:ALL'
+        state: present
+        append_privs: yes
+ 
+    - name: Deploy wp-cli command
+      ansible.builtin.copy:
+        src: wp-cli.phar
+        dest: /tmp/wp-cli
+        owner: apache
+        group: apache
+        mode: '0744'
+
+    - name: Deploy install script
+      ansible.builtin.template:
+        src: wordpress_install.sh.j2
+        dest: /tmp/wordpress_install.sh
+        owner: root
+        group: root
+        mode: '0744'
+
+    - name: Install wordpress
+      ansible.builtin.shell: "/tmp/wordpress_install.sh"
+
+    - name: Remove tmp
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /tmp/wp-cli
+        - /tmp/wordpress_install.sh 
+
+  when: not wordpress_installed.stat.exists
+
+  rescue:
+    - name: Remove tmp and wp-config.
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /tmp/wp-cli
+        - /tmp/wordpress_install.sh 
+        - /var/www/wordpress
+
+    - name: Drop database.
+      community.mysql.mysql_db:
+        login_unix_socket: "{{ wordpress_mysql_socket }}"
+        login_user: root
+        login_password: ''
+        name: wordpress
+        state: absent
+
+    - name: Create user and permission
+      community.mysql.mysql_user:
+        login_unix_socket: "{{ wordpress_mysql_socket }}"
+        login_user: root
+        login_password: ''
+        name: wordpress
+        state: absent
+  
+
+       
+
+        

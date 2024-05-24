@@ -62,4 +62,3 @@
   loop:
     - httpd
     - php-fpm
-

@@ -22,3 +22,11 @@ wordpress_php_max_input_time: 100
 wordpress_php_max_input_vars: 300
 wordpress_php_date_timezone: Asia/Tokyo
 
+# wordpress config
+wordpress_targz_url: https://ja.wordpress.org/latest-ja.tar.gz
+
+wordpress_url: "http://{{ inventory_hostname }}/wordpress"
+wordpress_blog_title: "KICK-ASS"
+wordpress_admin_user: "admin"
+wordpress_admin_pass: "admin00"
+wordpress_admin_email: "admin@localhost.localdomain"

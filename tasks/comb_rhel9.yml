@@ -15,3 +15,11 @@
     - wordpress_httpd
     - configuration
 
+- name: Import wordpress tasks.
+  ansible.builtin.import_tasks:
+    file: sub_wordpress.yml
+  tags:
+    - wordpress
+    - wordpress_wordpress
+    - configuration
+
